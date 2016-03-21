@@ -34,17 +34,44 @@ Student Researcher \\
 
 \section{Related Work}
 
+
 \section{Methods}
-\subsection{Description of data and data processing}
+\subsection{Description of data}
+The training data used in this paper comes from a set of 33 reference samples that have their entire genome bisulfite sequence. We primarily focus on the data for chromosome 1 for our analysis. The data consists of 33 reference samples with their methlyation proportions for each CpG site on the chromosome. Our test data consists of a sample tissue for which only a small subset of the methlyation values are accounted for. The first few columns of the training data specify the start location, the end location, and the positive or negative strand of the chromosome that the location is present on. We utilize this information to impute the values for the missing methlyation values in the test chromosome sample.
 
-\subsection{Classification Methods}
+To better understand the relationships between different tissues, we computed the pearson r correlation coefficient and the corresponding p-value associated with that coefficient for each pair of tissues (Table 1). As can be seen in table 1, certain tissues have a meaningful, non-pure chance, correlation with other tissues suggesting that certain tissues may be more apt at predicting given test values than other tissues. We also know from Figure 1 that locations that are closer together have higher correlations, and are more similar to each other than locations that are further apart on the chromosome. The finding that nearby locations have higher correlation is supported by other research in this area, such as the paper by Weiwei Zhang and Tim D Spector. 
 
+// insert figure
+// insert table
+
+Examining the distribution of the mean methylation values across different tissues the distribution appears to have a right skew, and looks like it could be representative of a beta distribution. Because the mean methylation values appear like they are drawn from a beta distribution, we believe that attempting to model the similarity between our test tissue and the training tissues as a problem of judging which prior beta distribution the test sample is most likely to have been drawn from may be a worthwhile approach. The mean methylation values can be seen in Figure 2. Furthermore, plotting the methylation values across a given tissue by location yields a graph that does not look linear, suggesting that if a regressor is to be used, a non-linear one may yield better results (Figure 3).
+
+// insert figure 2
+// insert figure 3
+
+\subsection{Imputation Pipelines}
+The basic structure of our approach remained the same across pipelines. We began by calculating the similarity between the test tissue and the training tissues. The similarity was judged through some type of similarity metric, and different pipelines used different metrics. After measuring similarity, the pipelines combined the information from the most similar tissues to predict the values of the test tissue. The process of combining the information was also varied from pipeline to pipeline.
+\subsubsection{Similarity Metrics Tested}
+\begin{enumerate}
+	\item The probability of the test vector being drawn from the beta distribution prior of a given test tissue
+	\item Pearson's R correlation
+\end{enumerate}
+
+\subsubsection{Combination Methods Tested}
+\begin{enumerate}
+	\item Weighted mean - weights decided by similarity for some top $x$ set of similar tissues
+	\item Support Vector Regression - Create SVRs for the top $x$ set of similar tissues using their training data to train the regressor on each location
+	\item Decision Tree Regression
+	\item Lasso Regression
+\end{enumerate}
+
+Due to time constraints, we were only able to test Pearson's R with weighted mean, and beta priors with SVRs and Decision Trees.
 
 \subsection{Evalulation}
 
+
 \section{Results}
 
-\subsection{Parameter Optimization}
 
 \section{Discussion and Conclusion}
 
