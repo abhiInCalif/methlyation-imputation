@@ -27,10 +27,11 @@ Student Researcher \\
 \maketitle
 
 \begin{abstract}
+In this assignment, we try to predict the missing values of an unknown tissue using the values observed for 33 other tissues. We do this by trying a number of different methods, involving weighted means, beta distributions, and various regressors. We evaluated the results of our predictions with the actual observed values at the site of the unknown tissue.  We find that taking the weighted mean across the top 5 correlated vectors produced the best result, with the lowest RMSE, as compared to other, more complex methods which resulted in higher error and lower correlation with the actual values. 
 \end{abstract}
 
 \section{Introduction}
-
+The study of the human genome is incredibly immense, and has been making many strides in recent times. Methylation is a very studied topic in genomics. One of the reasons why it is so closely studied is because it provides much insight into epigenetic markers, which are crucial identifiers of potential diseases that could occur in the human body. However, it can be an extremely costly process to accurately record values at every loci in question for every tissue under investigation. Such chips are both monetarily expensive and time wise very expensive. Thus, researchers have been trying to identify ways to use large data sets of prerecorded data to predict the methylation values of a tissue with only 2\% of the values recorded. In this paper, we plan to build upon the research that has been conducted and explore ways that we may improve the imputation pipeline to gain better results.
 
 \section{Related Work}
 
