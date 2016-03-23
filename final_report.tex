@@ -16,7 +16,7 @@ Student Researcher\\
 \And
 Amandeep Singh \\
 Student Researcher \\
-\texttt{email@princeton.edu} \\
+\texttt{assaini@princeton.edu} \\
 }
 
 \newcommand{\fix}{\marginpar{FIX}}
@@ -27,14 +27,15 @@ Student Researcher \\
 \maketitle
 
 \begin{abstract}
-In this assignment, we try to predict the missing values of an unknown tissue using the values observed for 33 other tissues. We do this by trying a number of different methods, involving weighted means, beta distributions, and various regressors. We evaluated the results of our predictions with the actual observed values at the site of the unknown tissue.  We find that taking the weighted mean across the top 5 correlated vectors produced the best result, with the lowest RMSE, as compared to other, more complex methods which resulted in higher error and lower correlation with the actual values. 
+In this assignment, we try to predict the missing values of an unknown tissue using the values observed for 33 other tissues. We do this by trying a number of different methods, involving weighted means, beta distributions, and various regressors. We evaluated the results of our predictions with the actual observed values at the site of the unknown tissue.  We find that taking the weighted mean across the top 5 correlated vectors produced the best result, with the lowest RMSE, 6.3\%, as compared to other, more complex methods which resulted in higher error and lower correlation with the actual values. 
 \end{abstract}
 
 \section{Introduction}
 The study of the human genome is incredibly immense, and has been making many strides in recent times. Methylation is a very studied topic in genomics. One of the reasons why it is so closely studied is because it provides much insight into epigenetic markers, which are crucial identifiers of potential diseases that could occur in the human body. However, it can be an extremely costly process to accurately record values at every loci in question for every tissue under investigation. Such chips are both monetarily expensive and time wise very expensive. Thus, researchers have been trying to identify ways to use large data sets of prerecorded data to predict the methylation values of a tissue with only 2\% of the values recorded. In this paper, we plan to build upon the research that has been conducted and explore ways that we may improve the imputation pipeline to gain better results.
 
 \section{Related Work}
-
+Currently, there exists a state of the art method of finding methylation values across an entire genome, and that is called whole genome bisulfite sequencing (WGBS). However, WGBS proves to be too costly to realistically be used. Although genome sequencing is making great strides every year, and is even outpacing moore’s law with methods like Next Generation Sequencing (NGS)[3], it is still costly, and so, using machine learning to predict values is still a necessary tool. 
+	Some tools that are coupled with machine learning are the Infinium HumanMethylation 450K BeadChip Kit, which checks roughly 480,000 methylation sites per sample at pre-selected CpG sites. [4]. Much research has been done in the area of using  machine learning to predict values. For example, Zhang, Spector, and Engelhardt used random forest classification to achieve 92\% prediction accuracy of genome wide methylation levels[1]. This is quite good, and so we hoped to try to achieve a similar accuracy.
 
 \section{Methods}
 \subsection{Description of data}
@@ -61,7 +62,7 @@ To better understand the relationships between different tissues, we computed th
 \end{center}
 \end{figure}
 
-Examining the distribution of the mean methylation values across different tissues the distribution appears to have a right skew, and looks like it could be representative of a beta distribution. We believe that attempting to model the similarity between our test tissue and the training tissues as a problem of judging which prior beta distribution the test sample is most likely to have been drawn from may be a worthwhile approach. The mean methylation values can be seen in Figure 2. Furthermore, plotting the methylation values across a given tissue by location yields a graph that does not look linear, suggesting that a non-linear regressor may yield a better result (Figure 3).
+Examining the distribution of the mean methylation values across different tissues the distribution appears to have a right skew, and looks like it could be representative of a beta distribution. We believe that attempting to model the similarity between our test tissue and the training tissues as a problem of judging which prior beta distribution the test sample is most likely to have been drawn from may be a worthwhile approach. The mean methylation values can be seen in Figure 3. Furthermore, plotting the methylation values across a given tissue by location yields a graph that does not look linear, suggesting that a non-linear regressor may yield a better result (Figure 4).
 
 \begin{figure}[!ht]
 \begin{minipage}[b]{0.50\linewidth}
@@ -91,7 +92,8 @@ The basic structure of our approach remained the same across pipelines. We began
 	\item Weighted mean
 	\item Support Vector Regression
 	\item Decision Tree Regression
-	\item Random Forest
+	\item Random Forest Regression
+	\item Linear Regression
 \end{enumerate}
 
 The pipelines that were run with the beta prior segmented the data into window size chunks, and used those chunks to train the regressors for the given location values.
@@ -100,7 +102,7 @@ The pipelines that were run with the beta prior segmented the data into window s
 The effectiveness of each pipeline was judged by examining the Pearson R correlation of the filled in test vector to the full vector, and computing the root mean squared error between the two vectors.
 
 \section{Results}
-We tested the pipelines against chromosome 1, and graded the accuracy of the imputation based on the RMSE, and Pearson's R correlation values. The following error rates were achieved by predicting the test sample for chromosome 1. Performance was variable with the weighted mean with correlation similarity performing the best out of all the pipelines.
+We tested the pipelines against chromosome 1, and graded the accuracy of the imputation based on the RMSE, and Pearson's R correlation values. The following error rates were achieved by predicting the test sample for chromosome 1. Performance was variable with the weighted mean with correlation similarity performing the best out of all the pipelines. In the table, BPS stands for Beta Prior Similarity, SVR stands for Support Vector Regressor, DT stands for Decision Tree Regressor, RF stands for Random Forest Regressor, LR stands for Linear Regression, CS stands for Correlation Similarity, and WM stands for Weighted Mean similarity.
 \begin{center}
 	\begin{tabular}{ |p{2cm}|p{2.3cm}|p{2.3cm}|}
 		\hline
@@ -112,6 +114,8 @@ We tested the pipelines against chromosome 1, and graded the accuracy of the imp
 		BPS + DT & 17.7  & 0.58 \\
 		BPS + RF & 17.7 & 0.58 \\
 		CS + WM & 6.3 & 0.93 \\
+		CS + DT & 10.2 & 0.93 \\
+		CS + LR & 26.2 & 0.03 \\
 		\hline
 	\end{tabular}
 \end{center}
@@ -134,7 +138,7 @@ For the weighted mean with correlation similarity pipeline, we optimized how man
 \section{Discussion and Conclusion}
 Once we observed that certain column vectors had strong correlation, we found the top 3 vectors correlated with each tissue and imputed the NANs by taking a weighted mean across the respective chromosome site. The results we obtained using just the simple method of imputing the values of the NANs by using the values at that location in the most highly correlated tissue, which happened to be tissue 23, was already producing better results than the example code that was provided. And as mentioned above, we found the global minimum of RMSE and the global maximum of Correlation Coefficient when we used the top 5 correlated vectors. And this makes sense, because if we use too few columns to compute the average, any chromosome locations that are outliers in the highly correlated tissue could cause a bad prediction, whereas too many columns when used to take the average can introduce noise and superfluous data, especially since not all tissues correlate well.
 
-Thus, when we used 5 columns to take the weighted mean to impute the missing values in the test set, it produced significantly better results. However, we were determined to do even better, and so instead of taking a simple weighted average, we used methods of regression coupled with weighted averaging to try to predict the values. As seen in the data from the previous section, linear regression performed very poorly, but this was expected, because, as mentioned earlier, the data in each column did not follow a linear trend. Polynomial regression performed better than linear, and decision tree regression even more so, but none performed quite as well as taking simply the weighted average itself across the most correlated columns. And this makes sense: regression in this case puts us at a loss of information, because it tries to generalize a tissue to a trend, but we already have a majority of the data in each tissue, since the NANs are so sparse in the training set. Thus, when we regress and predict a value at a chromosome site, we will incur more error than if we were to simply read the data at the row and use the observed value. And so, in this example, in terms of complexity providing better results, we notice that less is more: the easier and more straightforward approach yielded better results, and with good reason.
+Thus, when we used 5 columns to take the weighted mean to impute the missing values in the test set, it produced significantly better results. However, we were determined to do even better, and so instead of taking a simple weighted average, we used methods of regression coupled with weighted averaging to try to predict the values. As seen in the data from the previous section, linear regression performed very poorly, but this was expected, because, as mentioned earlier, the data in each column did not follow a linear trend. Polynomial regression performed better than linear, and decision tree regression even more so, but none performed quite as well as taking simply the weighted average itself across the most correlated columns. And this makes sense: regression in this case puts us at a loss of information, because it tries to generalize a tissue to a trend, but we already have a majority of the data in each tissue, since the NANs are so sparse in the training set. Thus, when we regress and predict a value at a chromosome site, we will incur more error than if we were to simply read the data at the row and use the observed value with some weight. And so, in this example, in terms of complexity providing better results, we notice that less is more: the easier and more straightforward approach yielded better results, and with good reason.
 
 Similarly, when we tried to use the beta distribution as a prior, we discovered that the vectors that were chosen as the most similar are not as close as the vectors that are chosen with the correlation metric. We believe that this may be part of the reason we see far higher error and lower correlation results for all the pipelines based on beta distribution priors. We hypothesize that the beta priors are not dissimilar enough between different tissues to accurately draw the true closest tissues.
 
@@ -145,5 +149,15 @@ We would like to acknowledge Princeton University for offering the wonderful COS
 
 \bibliography{References}
 \subsubsection*{References}
+[1] - Weiwei Zhang, Tim D Spector, Panos Deloukas, Jordana T Bell, and Barbara E Engelhardt. Predicting genome-wide dna methylation using methylation marks, genomic position, and dna regulatory elements. arXiv preprint arXiv:1308.2134, 2013
+\newline
+\newline
+[2] - Peter W Laird. Principles and challenges of genomewide DNA methylation analysis. Nature reviews. Genetics, 11(3):191–203, March 2010. ISSN 1471-0064. doi: 10.1038/nrg2732. URL http://www.ncbi.nlm.nih.gov/pubmed/20125086.
+\newline
+\newline
+[3] - Next-Generation Sequencing (NGS). (n.d.). Retrieved March 22, 2016, from http://www.illumina.com/technology/next-generation-sequencing.html
+\newline
+\newline
+[4] - Bjo/methylation\_imputation. (n.d.). Retrieved March 22, 2016, from https://github.com/bjo/methylation\_imputation
 
 \end{document}
